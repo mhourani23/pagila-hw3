@@ -1,4 +1,5 @@
 /*
+ *
  * The film 'BUCKET BROTHERHOOD' is your favorite movie, but you're tired of watching it.
  * You want to find something new to watch that is still similar to 'BUCKET BROTHERHOOD'.
  * To find a similar movie, you decide to search the history of movies that other people have rented.
@@ -18,3 +19,9 @@
  *    Ensure that you are not counting a customer that has rented a movie twice as 2 separate customers renting the movie.
  *    I did this by using the SELECT DISTINCT clause.
  */
+
+WITH rent AS (SELECT film_id, customer_id FROM rental JOIN inventory USING(inventory_id) JOIN film USING(film_id)),
+bucket_brotherhood_customer AS (SELECT customer_id FROM rental JOIN inventory USING(inventory_id) JOIN film USING(film_id) WHERE film.film_id=103),
+bucket_brotherhood_rent AS (SELECT * FROM rent WHERE customer_id IN (SELECT * FROM bucket_brotherhood_customer)),
+more AS (SELECT film_id FROM bucket_brotherhood_rent GROUP BY film_id HAVING COUNT(DISTINCT bucket_brotherhood_rent.customer_id) >= 3)
+SELECT DISTINCT title FROM film JOIN more USING(film_id) WHERE NOT film_id = 103 ORDER BY title;
